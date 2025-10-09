@@ -1,6 +1,6 @@
 <?php
 // Linha opcional caso tenha realizado a conexão com o BD
-$mysqli = mysqli_connect('localhost', 'root', 'senaisp', 'livraria');
+$mysqli = mysqli_connect('localhost', 'root', 'senaisp', 'empresa_solar');
 
 // Por questões de segurança buscar valores no BD
 $columns = array('titulo','ano_publicacao','preco');
