@@ -1,0 +1,12 @@
+<div class="container">
+  <h1>Bem-vindo à {{ title }}!</h1>
+
+  <div class="book-list">
+    
+    <app-book-item 
+      *ngFor="let livro of bookList" 
+      [book]="livro">
+    </app-book-item>
+
+  </div>
+</div>
