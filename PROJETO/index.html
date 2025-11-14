@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cartões Editáveis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Ubuntu', 'Georgia', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e8ba3 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255,255,255,0.03) 2px,
+                    rgba(255,255,255,0.03) 4px
+                );
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 15px;
+            font-size: 2.8em;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #e0e6ed;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+            font-style: italic;
+            font-family: 'Ubuntu', serif;
+            font-weight: 300;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 8px;
+            padding: 25px 20px;
+            box-shadow: 
+                0 2px 4px rgba(0,0,0,0.1),
+                0 8px 16px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            border-left: 4px solid #1e3c72;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 4px 8px rgba(0,0,0,0.15),
+                0 12px 24px rgba(0,0,0,0.15);
+            border-left-color: #2a5298;
+        }
+
+        .card-number {
+            font-size: 0.85em;
+            color: #1e3c72;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Ubuntu', sans-serif;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .card-input {
+            width: 100%;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 12px 15px;
+            font-size: 0.95em;
+            text-align: left;
+            transition: all 0.3s ease;
+            background: #ffffff;
+            margin-bottom: 10px;
+            font-family: 'Ubuntu', sans-serif;
+            color: #2c3e50;
+        }
+
+        .card-input:last-child {
+            margin-bottom: 0;
+        }
+
+        .card-input:focus {
+            outline: none;
+            border-color: #1e3c72;
+            background: #f8f9fa;
+            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+        }
+
+        .card-input::placeholder {
+            color: #adb5bd;
+            font-style: italic;
+        }
+
+        .buttons {
+            text-align: center;
+            margin-top: 50px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 30px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        button {
+            background: #ffffff;
+            color: #1e3c72;
+            border: 2px solid transparent;
+            padding: 14px 35px;
+            border-radius: 6px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            font-family: 'Ubuntu', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            border-color: #1e3c72;
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .print-btn {
+            background: #2a5298;
+            color: white;
+        }
+
+        .print-btn:hover {
+            background: #1e3c72;
+            border-color: #1e3c72;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 20px;
+            }
+
+            .buttons {
+                display: none;
+            }
+
+            h1 {
+                color: #667eea;
+                text-shadow: none;
+            }
+
+            .card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .has-notes {
+                display: none !important;
+            }
+
+            .modal {
+                display: none !important;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 35px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.4);
+            border-top: 5px solid #1e3c72;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #e9ecef;
+        }
+
+        .modal-header h2 {
+            color: #1e3c72;
+            margin: 0;
+            font-family: 'Ubuntu', serif;
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 4px;
+            font-size: 1.4em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .close-btn:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-names {
+            background: #f8f9fa;
+            padding: 18px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            border-left: 4px solid #2a5298;
+        }
+
+        .modal-names p {
+            margin: 8px 0;
+            color: #2c3e50;
+            font-weight: 500;
+            font-family: 'Ubuntu', sans-serif;
+        }
+
+        .notes-label {
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 12px;
+            display: block;
+            font-size: 1.1em;
+            font-family: 'Ubuntu', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .notes-textarea {
+            width: 100%;
+            min-height: 220px;
+            border: 2px solid #ced4da;
+            border-radius: 6px;
+            padding: 15px;
+            font-size: 1em;
+            font-family: 'Ubuntu', serif;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+
+        .notes-textarea:focus {
+            outline: none;
+            border-color: #1e3c72;
+            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .save-notes-btn {
+            background: #2a5298;
+            color: white;
+        }
+
+        .save-notes-btn:hover {
+            background: #1e3c72;
+        }
+
+        .has-notes {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #2a5298;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .print-list {
+            display: none;
+        }
+
+        .print-list.active {
+            display: block;
+        }
+
+        .list-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+        }
+
+        .list-container h1 {
+            color: #1e3c72;
+            text-align: center;
+            margin-bottom: 30px;
+            font-family: 'Ubuntu', serif;
+        }
+
+        .list-item {
+            border-bottom: 2px solid #dee2e6;
+            padding: 25px 0;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-item-header {
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Ubuntu', sans-serif;
+        }
+
+        .list-item-names {
+            margin-bottom: 10px;
+        }
+
+        .list-item-names p {
+            margin: 5px 0;
+            color: #2c3e50;
+            font-family: 'Ubuntu', sans-serif;
+        }
+
+        .list-item-notes {
+            background: #f8f9fa;
+            padding: 18px;
+            border-radius: 6px;
+            margin-top: 12px;
+            white-space: pre-wrap;
+            color: #495057;
+            border-left: 4px solid #2a5298;
+            font-family: 'Ubuntu', serif;
+            line-height: 1.6;
+        }
+
+        @media print {
+            .print-list.active {
+                display: block;
+            }
+
+            .cards-grid {
+                display: none !important;
+            }
+
+            h1:first-of-type {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Gerenciador de Projetos Acadêmicos</h1>
+        <p class="subtitle">Sistema de Organização e Acompanhamento de Atividades</p>
+        
+        <div class="cards-grid" id="cardsGrid"></div>
+
+        <div class="buttons">
+            <button onclick="clearAll()">🗑️ Limpar Todos</button>
+            <button onclick="saveCards()">💾 Salvar</button>
+            <button class="print-btn" onclick="printCards()">🖨️ Imprimir Cartões</button>
+            <button class="print-btn" onclick="printList()">📋 Imprimir Lista</button>
+        </div>
+    </div>
+
+    <!-- Container para impressão em lista -->
+    <div class="print-list" id="printList">
+        <div class="list-container">
+            <h1>📋 Relatório de Projetos</h1>
+            <div id="listContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal para anotações -->
+    <div class="modal" id="notesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Anotações - Cartão 1</h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-names" id="modalNames">
+                    <p><strong>Responsável:</strong> <span id="displayName1">-</span></p>
+                    <p><strong>Tema:</strong> <span id="displayName2">-</span></p>
+                </div>
+                <label class="notes-label">📝 Observações e Acompanhamento</label>
+                <textarea 
+                    class="notes-textarea" 
+                    id="notesTextarea" 
+                    placeholder="Registre aqui o progresso, objetivos, prazos, observações e comentários sobre o projeto..."
+                ></textarea>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal()">Cancelar</button>
+                <button class="save-notes-btn" onclick="saveNotes()">💾 Salvar Anotações</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cardsData = {};
+        let currentCardNumber = null;
+
+        function createCards() {
+            const grid = document.getElementById('cardsGrid');
+            
+            for (let i = 1; i <= 20; i++) {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = (e) => {
+                    if (!e.target.classList.contains('card-input')) {
+                        openModal(i);
+                    }
+                };
+                
+                card.innerHTML = `
+                    <div class="card-number">📋 Projeto ${i}</div>
+                    <span class="has-notes" id="notes-indicator-${i}" style="display: none;">📝</span>
+                    <input 
+                        type="text" 
+                        class="card-input" 
+                        id="card-${i}-linha1"
+                        placeholder="Responsável / Estudante..."
+                        onclick="event.stopPropagation()"
+                        onchange="saveToMemory('card-${i}-linha1', this.value)"
+                    >
+                    <input 
+                        type="text" 
+                        class="card-input" 
+                        id="card-${i}-linha2"
+                        placeholder="Tema / Disciplina..."
+                        onclick="event.stopPropagation()"
+                        onchange="saveToMemory('card-${i}-linha2', this.value)"
+                    >
+                `;
+                
+                grid.appendChild(card);
+            }
+            
+            loadCards();
+        }
+
+        function openModal(cardNumber) {
+            currentCardNumber = cardNumber;
+            const modal = document.getElementById('notesModal');
+            const title = document.getElementById('modalTitle');
+            const name1 = document.getElementById('card-' + cardNumber + '-linha1').value || '-';
+            const name2 = document.getElementById('card-' + cardNumber + '-linha2').value || '-';
+            const textarea = document.getElementById('notesTextarea');
+            
+            title.textContent = 'Anotações - Projeto ' + cardNumber;
+            document.getElementById('displayName1').textContent = name1;
+            document.getElementById('displayName2').textContent = name2;
+            
+            const notesKey = 'notes-' + cardNumber;
+            textarea.value = cardsData[notesKey] || '';
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('notesModal');
+            modal.classList.remove('active');
+            currentCardNumber = null;
+        }
+
+        function saveNotes() {
+            if (currentCardNumber) {
+                const textarea = document.getElementById('notesTextarea');
+                const notesKey = 'notes-' + currentCardNumber;
+                cardsData[notesKey] = textarea.value;
+                
+                const indicator = document.getElementById('notes-indicator-' + currentCardNumber);
+                if (textarea.value.trim()) {
+                    indicator.style.display = 'flex';
+                } else {
+                    indicator.style.display = 'none';
+                }
+                
+                alert('✅ Anotações salvas com sucesso!');
+                closeModal();
+            }
+        }
+
+        function saveToMemory(inputId, value) {
+            cardsData[inputId] = value;
+        }
+
+        function saveCards() {
+            const inputs = document.querySelectorAll('.card-input');
+            inputs.forEach(input => {
+                cardsData[input.id] = input.value;
+            });
+            alert('✅ Cartões salvos com sucesso!');
+        }
+
+        function loadCards() {
+            Object.keys(cardsData).forEach(key => {
+                if (key.startsWith('notes-')) {
+                    const cardNumber = key.replace('notes-', '');
+                    const indicator = document.getElementById('notes-indicator-' + cardNumber);
+                    if (cardsData[key].trim() && indicator) {
+                        indicator.style.display = 'flex';
+                    }
+                } else {
+                    const input = document.getElementById(key);
+                    if (input) {
+                        input.value = cardsData[key];
+                    }
+                }
+            });
+        }
+
+        function clearAll() {
+            if (confirm('Tem certeza que deseja limpar todos os cartões e anotações?')) {
+                const inputs = document.querySelectorAll('.card-input');
+                inputs.forEach(input => {
+                    input.value = '';
+                });
+                
+                for (let i = 1; i <= 20; i++) {
+                    const indicator = document.getElementById('notes-indicator-' + i);
+                    if (indicator) {
+                        indicator.style.display = 'none';
+                    }
+                }
+                
+                Object.keys(cardsData).forEach(key => {
+                    cardsData[key] = '';
+                });
+                alert('🗑️ Todos os cartões e anotações foram limpos!');
+            }
+        }
+
+        function printCards() {
+            document.getElementById('printList').classList.remove('active');
+            window.print();
+        }
+
+        function printList() {
+            const listContent = document.getElementById('listContent');
+            listContent.innerHTML = '';
+            
+            for (let i = 1; i <= 20; i++) {
+                const name1 = document.getElementById('card-' + i + '-linha1').value;
+                const name2 = document.getElementById('card-' + i + '-linha2').value;
+                const notes = cardsData['notes-' + i] || '';
+                
+                if (name1 || name2 || notes) {
+                    const item = document.createElement('div');
+                    item.className = 'list-item';
+                    
+                    let html = `<div class="list-item-header">Projeto ${i}</div>`;
+                    
+                    if (name1 || name2) {
+                        html += '<div class="list-item-names">';
+                        if (name1) html += `<p><strong>Responsável:</strong> ${name1}</p>`;
+                        if (name2) html += `<p><strong>Tema:</strong> ${name2}</p>`;
+                        html += '</div>';
+                    }
+                    
+                    if (notes) {
+                        html += `<div class="list-item-notes"><strong>Anotações:</strong><br>${notes}</div>`;
+                    }
+                    
+                    item.innerHTML = html;
+                    listContent.appendChild(item);
+                }
+            }
+            
+            if (listContent.children.length === 0) {
+                listContent.innerHTML = '<p style="text-align: center; color: #6c757d; font-style: italic;">Nenhum projeto preenchido para imprimir.</p>';
+            }
+            
+            document.getElementById('printList').classList.add('active');
+            
+            setTimeout(() => {
+                window.print();
+                document.getElementById('printList').classList.remove('active');
+            }, 100);
+        }
+
+        // Fechar modal ao clicar fora
+        document.getElementById('notesModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        createCards();
+    </script>
+</body>
+</html>
